@@ -1,53 +1,112 @@
 ---
 name: aix-start
 description: >-
-  Start a development session with the full aix workflow. Routes to the
-  appropriate phase (plan → code → review → ship) based on context.
-  This is the primary entry point for daily development work.
+  aix development pipeline orchestrator. Start here for new work.
+  Runs the full pipeline automatically: explore → plan → code → review → ship.
+  Proactively invoked when user says "start development", "begin work",
+  "let's build", "new feature", or types /aix-start.
+  Do NOT let the user manually route between stages — run the pipeline.
 when_to_use: >-
   User says "start", "begin work", "let's develop", "start session",
-  or types /aix-start at the beginning of a development session.
-  Activated by default when starting work on a project that has aix configured.
-allowed-tools: Read Grep Bash
+  "new feature", "let's build", "I want to work on", "implement",
+  "我需要开发", "开始", and any message indicating intent to start
+  development work. Activated by default when starting work on a project
+  that has aix configured. Do NOT wait for user to ask for each step.
+allowed-tools: Read Grep Glob Bash Write Edit Agent
 ---
 
-# aix-start — Development Session Start
+# aix-start — Development Pipeline
 
-Entry point for daily development. Routes to the appropriate aix skill
-based on what the user wants to do.
+Complete development pipeline: explore → plan → code → review → ship.
+Run this once per feature/change. Do NOT ask user to manually route.
 
-## HARD-GATE: Design before Code
+## Pipeline
 
-Do NOT write any code until the user has approved a design. This is enforced
-regardless of how simple the request seems.
+```
+[start] ─→ explore ─→ plan ─→ code ─→ review ─→ [commit]
+   ↑                                            │
+   └──────────────── ship ───────────────────────┘
+```
 
-## Routing
+## Flow
 
-Ask the user what they want to do. Based on their response, route to:
+Ask the user ONE question: "What are you working on?"
+Then run the full pipeline. Do not stop between stages.
 
-| If user wants to... | Route to |
-|---|---|
-| Explore code / trace flow / investigate | `/aix-explore` |
-| New feature / change | `/aix-plan` |
-| Implement approved plan | `/aix-code` |
-| Review code | `/aix-review` |
-| QA / test | `/aix-qa` |
-| Security audit | `/aix-cso` |
-| Release / ship | `/aix-ship` |
-| Save session context | `/aix-context` |
+---
 
-## Session Start Protocol
+### Stage 1: Explore
 
-1. Load `CLAUDE.md` from project root for project-specific context
-2. Read `openspec/config.yaml` for OpenSpec context (if exists)
-3. Check `.omx/plans/` for any active plans (if exists)
-4. Check git status for current branch state
-5. Ask user what they want to work on
-6. Route to appropriate aix skill
+> 探索代码上下文，理解现有实现
 
-## Key Constraints
+Invoke `/aix-explore` in `landscape` mode:
 
-- Always read `CLAUDE.md` first — it contains project-specific rules
-- Never skip planning phase for new features
-- Run full build verification before marking work as done
-- IPC changes require 3-file sync (main.ts / preload.ts / electron.d.ts)
+- Learn the project structure from CLAUDE.md
+- Explore relevant files based on what the user wants to build
+- If user's request is vague, ask 1-2 clarifying questions
+
+**Output**: Clear understanding of:
+- What exists today
+- Where changes need to be made
+- Key files and their relationships
+
+---
+
+### Stage 2: Plan
+
+> 设计方案，用户审批
+
+Based on exploration findings:
+
+1. Present 1-2 design approaches with trade-offs
+2. Show specific files that will change
+3. User approves → proceed
+4. User has concerns → adjust and re-present
+
+**Design must be approved before any code is written.**
+
+---
+
+### Stage 3: Code
+
+> 执行实施
+
+Invoke `/aix-code`:
+
+- Read design decisions from stage 2
+- Implement changes file by file
+- Run type check after each file
+- Run full build after all changes
+
+---
+
+### Stage 4: Review
+
+> 审查代码质量
+
+Invoke `/aix-review`:
+
+- Run automated checks (typecheck, build, conflicts)
+- Review diff for architecture compliance
+- Show summary to user
+
+---
+
+### Stage 5: Commit / Ship
+
+> 提交流通
+
+Ask user: "Ready to commit?"
+
+- If yes → stage and commit with descriptive message
+- If user wants ship (release) → invoke `/aix-ship`
+
+---
+
+## Constraints
+
+- Stage 2 (Plan) requires user approval — never skip
+- Stage 3 (Code) requires approved plan — never start coding without it
+- Run `npm run typecheck && npm run build` before marking code as done
+- Run conflict marker scan before commit
+- IPC changes need 3-file sync
