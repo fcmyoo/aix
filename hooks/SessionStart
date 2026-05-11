@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# aix SessionStart hook — inject aix context into every session
+# Install: cp this file to .claude/hooks/SessionStart
+set -e
+
+# Only activate on projects with aix configuration
+if [ ! -f "CLAUDE.md" ]; then
+  echo '{"continue":true}'
+  exit 0
+fi
+
+# If the project has .aix/config, load it
+if [ -f ".aix/config" ]; then
+  echo "📋 aix project detected — run /aix-start to begin"
+fi
+
+echo '{"continue":true,"suppressOutput":true}'
