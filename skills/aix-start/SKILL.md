@@ -27,6 +27,7 @@ Ask the user what they want to do. Based on their response, route to:
 
 | If user wants to... | Route to |
 |---|---|
+| Explore code / trace flow / investigate | `/aix-explore` |
 | New feature / change | `/aix-plan` |
 | Implement approved plan | `/aix-code` |
 | Review code | `/aix-review` |

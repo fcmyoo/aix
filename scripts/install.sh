@@ -16,14 +16,15 @@ for skill_dir in "$SKILLS_SRC"/*/; do
   target="$SKILLS_DST/$skill_name"
 
   if [ -L "$target" ]; then
-    # 如果是符号链接，删除重建
     rm -f "$target"
   elif [ -d "$target" ]; then
-    # 已存在的目录，询问是否覆盖
-    read -p "  ⚠️  Skill $skill_name 已存在，覆盖？[y/N] " confirm
-    if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
-      echo "  ⏭️  跳过 $skill_name"
-      continue
+    # 非交互式时用环境变量 AIX_FORCE=1 跳过确认
+    if [ "${AIX_FORCE:-0}" != "1" ] && [ -t 0 ]; then
+      read -p "  ⚠️  Skill $skill_name 已存在，覆盖？[y/N] " confirm
+      if [ "$confirm" != "y" ] && [ "$confirm" != "Y" ]; then
+        echo "  ⏭️  跳过 $skill_name"
+        continue
+      fi
     fi
     rm -rf "$target"
   fi
