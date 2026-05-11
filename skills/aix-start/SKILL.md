@@ -71,10 +71,21 @@ Based on exploration findings:
 
 > 执行实施
 
-Invoke `/aix-code`:
+For small to medium changes, invoke `/aix-code` for direct implementation.
 
+For large or complex changes, offer CCB handoff to Codex CLI:
+
+```
+Option A: Direct (推荐，小改动)   → Claude Code implements directly
+Option B: Codex via CCB (大改动) → Write plan to .omx/plans/
+                                    User starts CCB: ccb
+                                    Executor pane runs Codex against plan
+```
+
+Invoke `/aix-ccb` to set up the team config and explain the handoff.
+
+Implementation requirements:
 - Read design decisions from stage 2
-- Implement changes file by file
 - Run type check after each file
 - Run full build after all changes
 

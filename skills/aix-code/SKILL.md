@@ -42,12 +42,23 @@ For tasks with 2-5 independent sub-tasks, dispatch subagents:
 - Use `superpowers:subagent-driven-development` for parallel execution
 - Each subagent gets: specific file list, clear acceptance criteria, context from design
 
-### Option C: Dual-Runtime Handoff (Claude Code → Codex CLI)
+### Option C: Dual-Runtime Handoff — CCB (recommended for large tasks)
 
 For large tasks or tasks needing persistent execution:
 
-1. Write detailed execution plan to `.omx/plans/<name>-exec.md`
-2. Plan includes: files, approach, order, verification steps
+1. Invoke `/aix-ccb` to ensure team config is ready
+2. Write detailed execution plan to `.omx/plans/<name>-exec.md`
+3. Plan includes: files, approach, order, verification steps
+4. Tell user to use CCB:
+
+```bash
+# Start CCB team with executor
+cd <project>
+ccb
+# In executor pane (Codex), read and execute the plan
+```
+
+5. After Codex completes, invoke `/aix-review` to review generated code
 3. Tell user to run Codex CLI:
 
 ```bash
